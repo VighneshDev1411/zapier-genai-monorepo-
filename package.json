@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@types/react": "^19.1.8",
+    "nanoid": "^5.1.5",
+    "react": "^19.1.0",
+    "reactflow": "^11.11.4"
+  }
+}

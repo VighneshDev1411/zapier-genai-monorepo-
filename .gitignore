@@ -1,0 +1,45 @@
+# 🔒 Environment Variables
+.env
+.env.local
+.env.*.local
+
+# ⚙️ Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.egg-info/
+venv/
+.mypy_cache/
+.pytest_cache/
+
+# 🚫 FastAPI specific logs
+backend/.pytest_cache/
+backend/__pycache__/
+backend/venv/
+backend/*.sqlite3
+
+# 🧼 Node (Next.js frontend)
+node_modules/
+.next/
+out/
+
+# 📦 Docker volumes/cache
+*.pid
+*.log
+docker-compose.override.yml
+
+# 🖥 OS & Editor Files
+.DS_Store
+*.swp
+.idea/
+.vscode/
+*.bak
+Thumbs.db
+
+# ⛔ Build output
+dist/
+build/
+coverage/
