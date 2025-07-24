@@ -7,6 +7,7 @@ from app.api.flows import flow_router
 from fastapi.openapi.models import APIKey, APIKeyIn, SecuritySchemeType
 from fastapi.openapi.utils import get_openapi
 from starlette.middleware.sessions import SessionMiddleware
+from app.api.routes.run_flow import router as run_flow_router
 # from app.api import gmail_auth
 import os
 
@@ -26,6 +27,7 @@ app.add_middleware(
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app.include_router(auth_router)
 app.include_router(flow_router)
+app.include_router(run_flow_router)
 # app.include_router(gmail_auth.router)
 
 

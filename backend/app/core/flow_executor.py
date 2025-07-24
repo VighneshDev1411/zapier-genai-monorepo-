@@ -2,6 +2,8 @@ from langchain.chat_models import ChatOpenAI
 from langchain.schema import HumanMessage
 from app.models.flow import Flow
 from langchain.tools import tool
+from langchain.agents import initialize_agent, AgentType
+from langchain.memory import ConversationBufferMemory
 from typing import Dict, List
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
@@ -166,4 +168,38 @@ def execute_flow_with_langchain(flow: Flow, input_text: str) -> str:
             response = llm.invoke([HumanMessage(content=prompt)])
             context[node_id] = response.content
 
+        elif node_type == "agent":
+            prompt = config.get("prompt", "")
+            tools_selected = config.get("tools", [])
+            memory_enabled = config.get("memory", False)
+
+            sources = reverse.get(node_id, [])
+            if sources: 
+                input_text = context.get(sources[-1], "")
+                prompt = prompt.replace("{{input}}", input_text)
+
+            print(f"[AGENT] Running agent node {node_id} with prompt: {prompt}")
+            
+            tools = []
+            for tool_id in tools_selected:
+                if tool_id in TOOL_REGISTRY:
+                    tools.append(TOOL_REGISTRY[tool_id])
+            
+            memory = None
+            if memory_enabled:
+                memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
+            agent = initialize_agent(
+                tools=tools,
+                llm=llm,
+                memory = memory,
+                verbose = True
+            )
+            try: 
+                result = agent.run(prompt)
+            except Exception as e:
+                result = f"[AgentError] {str(e)}"
+            
+            context[node_id] = result
+            
     return context.get(execution_order[-1], "No result")
