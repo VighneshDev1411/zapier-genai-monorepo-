@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
-from pydantic import BaseModel,  field_validator
-from uuid import UUID
+from typing import Optional
+from datetime import datetime
+import uuid
 
 class UserCreate(BaseModel):
     email: EmailStr
@@ -10,19 +11,11 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
 
-
-
 class UserOut(BaseModel):
-    id: str
-    email: EmailStr
+    id: uuid.UUID
+    email: str
+    name: Optional[str] = None  # Added name field
+    created_at: datetime
 
-    @field_validator("id", mode="before")
-    @classmethod
-    def convert_uuid(cls, v):
-        return str(v)
-
-    model_config = {
-        "from_attributes": True  # replaces `orm_mode = True` in Pydantic v2
-    }
-
-        
+    class Config:
+        from_attributes = True

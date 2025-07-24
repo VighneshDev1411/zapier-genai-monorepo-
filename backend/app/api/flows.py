@@ -1,12 +1,13 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.db import get_db
 from app.api.deps import get_current_user
 from app.models.flow import Flow
 from app.schemas.flow import FlowCreate, FlowOut
 from app.schemas.run_input import RunInput
-from app.core.flow_executor import execute_flow_with_langchain  # <- Import your executor logic
+from app.core.flow_executor import execute_flow_with_langchain 
+
 
 flow_router = APIRouter(prefix="/flows", tags=["Flows"])
 
@@ -46,3 +47,13 @@ def run_flow(flow_id: str, input_data: RunInput, db: Session = Depends(get_db), 
         return {"result": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@flow_router.delete("/{flow_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_flow(flow_id: UUID, db: Session = Depends(get_db), user=Depends(get_current_user)):
+    flow = db.query(Flow).filter(Flow.id == flow_id, Flow.owner_id == user.id).first()
+    if not flow:
+        raise HTTPException(status_code=404, detail="Flow not found")
+
+    db.delete(flow)
+    db.commit()
+    return

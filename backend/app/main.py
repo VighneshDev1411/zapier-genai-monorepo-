@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.flows import flow_router
 from fastapi.openapi.models import APIKey, APIKeyIn, SecuritySchemeType
 from fastapi.openapi.utils import get_openapi
+from starlette.middleware.sessions import SessionMiddleware
 # from app.api import gmail_auth
 import os
 
@@ -13,6 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = FastAPI()
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET", "super-secret-session-key"))
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],  # only allow frontend origin
