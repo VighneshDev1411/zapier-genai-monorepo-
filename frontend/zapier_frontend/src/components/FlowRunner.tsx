@@ -8,7 +8,7 @@ export default function FlowRunner({ flowId }: { flowId: string }) {
 
   const runFlow = async () => {
     setLoading(true);
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("zapier_token");
 
     const res = await fetch(`http://localhost:8000/flows/${flowId}/run?input=${encodeURIComponent(input)}`, {
       method: "POST",

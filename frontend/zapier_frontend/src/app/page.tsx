@@ -1,11 +1,13 @@
-import Image from "next/image";
-import Signup from "./signup/page";
-import Dashboard from "./dashboard/page";
+"use client";
 
-export default function Home() {
+import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Login from "./login/page";
+
+export default function HomePage() {
+  
+
   return (
-    <div>
-      <Dashboard />
-    </div>
+    <Login />
   );
 }

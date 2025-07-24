@@ -67,7 +67,7 @@ export default function FlowBuilder({ initialNodes = [], initialEdges = [] }) {
   );
 
   const handleSave = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("zapier_token");
 
     const safeNodes = nodes.map((node) => {
       const position = node?.position ?? {

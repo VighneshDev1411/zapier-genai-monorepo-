@@ -9,7 +9,7 @@ export default function FlowDetailPage() {
   const { id } = useParams();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("zapier_token");
     if (!token) {
       setError("Not logged in");
       return;

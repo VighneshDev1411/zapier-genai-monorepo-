@@ -1,18 +1,46 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import GoogleIcon from "@/assets/Google__G__logo.svg.webp";
+
+const setToken = (token: string) => {
+  localStorage.setItem("zapier_token", token);
+};
+
+const getToken = (): string | null => {
+  return localStorage.getItem("zapier_token");
+};
 
 const Login = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
+
+  // ✅ Redirect if already logged in
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      router.push("/dashboard");
+    }
+  }, [router]);
+
+  // ✅ Handle redirect from Google OAuth
+  useEffect(() => {
+    const token = searchParams.get("zapier_token");
+    if (token) {
+      setToken(token);
+      router.push("/dashboard");
+    }
+  }, [searchParams, router]);
 
   const handleLogin = async () => {
     setIsLoading(true);
-    
     try {
       const res = await fetch("http://localhost:8000/auth/login", {
         method: "POST",
@@ -20,171 +48,138 @@ const Login = () => {
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem("token", data.access_token);
+        setToken(data.access_token);
         router.push("/dashboard");
       } else {
-        const err = await res.json();
-        alert(err.detail || "Login failed");
+        alert(data.detail || "Login failed");
       }
-    } catch (error) {
-      alert("Network error. Please try again.");
+    } catch (err) {
+      alert("Network error");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSignUpClick = () => {
-    router.push("/signup");
-  };
+  const handleSignUpClick = () => router.push("/signup");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden flex items-center justify-center p-4 sm:p-6">
-      {/* Animated Background Elements */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+      {/* 🔆 Background + Grid Effects */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
       </div>
 
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
-
-      {/* Login Card - Properly sized container */}
-      <div className="relative z-10 w-full max-w-xs sm:max-w-sm md:max-w-md mx-auto">
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 border border-white/20 shadow-2xl">
-          {/* Logo/Brand Section */}
-          <div className="text-center mb-6 sm:mb-8">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-white/30 rounded-md sm:rounded-lg flex items-center justify-center">
-                <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-white rounded-sm"></div>
+      {/* 🧾 Login Card */}
+      <div className="relative z-10 w-full max-w-md mx-auto">
+        <div className="bg-white/10 backdrop-blur-md rounded-3xl p-7 border border-white/20 shadow-2xl">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <div className="w-8 h-8 bg-white/30 rounded-lg flex items-center justify-center">
+                <div className="w-4 h-4 bg-white rounded-sm" />
               </div>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-2 sm:mb-3">
+            <h1 className="text-3xl font-black bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-2">
               Welcome Back
             </h1>
-            <p className="text-gray-300 text-xs sm:text-sm md:text-base">
-              Sign in to your automation workspace
-            </p>
+            <p className="text-gray-300 text-sm">Sign in to your automation workspace</p>
           </div>
 
-          {/* Login Form */}
-          <div className="space-y-4 sm:space-y-5 md:space-y-6">
-            {/* Email Input */}
-            <div className="space-y-2">
-              <label className="text-xs sm:text-sm font-medium text-gray-300">Email</label>
-              <div className="relative">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-full bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 px-4 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl border border-white/20 focus:border-purple-500/50 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 text-xs sm:text-sm"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                />
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <div className="w-3 h-3 sm:w-4 sm:h-4 border border-gray-400 rounded-sm"></div>
-                </div>
-              </div>
+          {/* 📩 Email Field */}
+          <div className="space-y-5">
+            <div>
+              <label className="text-sm font-medium text-gray-300">Email</label>
+              <input
+                type="email"
+                className="w-full bg-white/10 text-white placeholder-gray-400 px-4 py-3 rounded-xl border border-white/20 focus:ring-2 focus:ring-purple-500/30 text-sm"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              />
             </div>
 
-            {/* Password Input */}
-            <div className="space-y-2">
-              <label className="text-xs sm:text-sm font-medium text-gray-300">Password</label>
+            {/* 🔒 Password Field */}
+            <div>
+              <label className="text-sm font-medium text-gray-300">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
+                  className="w-full bg-white/10 text-white placeholder-gray-400 px-4 py-3 rounded-xl border border-white/20 focus:ring-2 focus:ring-purple-500/30 text-sm"
                   placeholder="Enter your password"
-                  className="w-full bg-white/10 backdrop-blur-sm text-white placeholder-gray-400 px-4 py-2.5 sm:px-4 sm:py-3 rounded-lg sm:rounded-xl border border-white/20 focus:border-purple-500/50 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all duration-200 text-xs sm:text-sm"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogin()}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
                 >
-                  {showPassword ? (
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 border border-current rounded-full relative">
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-current rounded-full"></div>
-                      <div className="absolute top-0 left-0 w-full h-px bg-current rotate-45 origin-center"></div>
-                    </div>
-                  ) : (
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 border border-current rounded-full relative">
-                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-current rounded-full"></div>
-                    </div>
-                  )}
+                  {showPassword ? "🙈" : "👁️"}
                 </button>
               </div>
             </div>
 
-            {/* Forgot Password */}
+            {/* 🔐 Forgot Password */}
             <div className="text-right">
-              <button
-                type="button"
-                className="text-xs text-purple-300 hover:text-purple-200 transition-colors"
-              >
-                Forgot password?
-              </button>
+              <button className="text-xs text-purple-300 hover:text-purple-200">Forgot password?</button>
             </div>
 
-            {/* Login Button */}
+            {/* 🔁 Login Button */}
             <button
               onClick={handleLogin}
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-600 text-white font-semibold py-2.5 sm:py-3 px-4 rounded-lg sm:rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-md hover:shadow-purple-500/25 disabled:hover:scale-100 disabled:hover:shadow-none relative overflow-hidden group text-xs sm:text-sm"
+              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:scale-[1.02] text-white font-semibold py-3 px-4 rounded-xl transition duration-300"
             >
-              <div className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-              <div className="relative flex items-center justify-center gap-1.5">
-                {isLoading ? (
-                  <>
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 border border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    <div className="w-0 h-0 border-l-[4px] sm:border-l-[5px] border-l-white border-y-[2px] sm:border-y-[3px] border-y-transparent"></div>
-                    Sign In
-                  </>
-                )}
-              </div>
+              {isLoading ? "Signing in..." : "Sign In"}
             </button>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3 my-4 sm:my-5">
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-              <span className="text-gray-400 text-xs sm:text-sm">or</span>
-              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            {/* 🔵 Google OAuth */}
+            <button
+              onClick={() => {
+                window.location.href = "http://localhost:8000/auth/google/login";
+              }}
+              className="w-full bg-white text-black font-semibold py-3 px-4 rounded-xl transition duration-300 flex items-center justify-center gap-2"
+            >
+              <Image src={GoogleIcon} alt="Google" width={16} height={16} />
+              Sign in with Google
+            </button>
+
+            {/* ➖ Divider */}
+            <div className="flex items-center gap-3 my-5">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <span className="text-gray-400 text-sm">or</span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             </div>
 
-            {/* Sign Up Link */}
-            <div className="text-center">
-              <p className="text-gray-300 text-xs sm:text-sm">
-                Don't have an account?{" "}
-                <button
-                  type="button"
-                  onClick={handleSignUpClick}
-                  className="text-purple-300 hover:text-purple-200 font-semibold transition-colors hover:underline"
-                >
-                  Create Account
-                </button>
-              </p>
+            {/* 🧾 Sign Up Link */}
+            <div className="text-center text-gray-300 text-sm">
+              Don’t have an account?{" "}
+              <button
+                type="button"
+                onClick={handleSignUpClick}
+                className="text-purple-300 hover:text-purple-200 font-semibold hover:underline"
+              >
+                Create Account
+              </button>
             </div>
           </div>
         </div>
-
-    
       </div>
 
+      {/* 🔁 Spinner CSS */}
       <style jsx>{`
         @keyframes spin {
           to {
             transform: rotate(360deg);
           }
         }
-        
         .animate-spin {
           animation: spin 1s linear infinite;
         }

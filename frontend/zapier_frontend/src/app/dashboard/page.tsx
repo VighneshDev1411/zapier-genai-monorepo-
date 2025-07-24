@@ -11,7 +11,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     setMounted(true);
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("zapier_token");
     fetch("http://localhost:8000/flows/", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -39,7 +39,7 @@ export default function DashboardPage() {
   };
 
   const deleteFlow = async (id: string) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("zapier_token");
     const res = await fetch(`http://localhost:8000/flows/${id}`, {
       method: "DELETE",
       headers: {
@@ -126,7 +126,7 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {flows.slice(0, 6).map((flow: any, index) => (
+                {Array.isArray(flows) && flows.slice(0, 6).map((flow: any, index) => (
                   <div
                     key={flow.id}
                     className="group relative bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 hover:border-purple-500/50 transition-all duration-500 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20"
